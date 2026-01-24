@@ -1,4 +1,5 @@
-# Dayhoff's Unzipper
+![Dayhoff's Unzipper Logo](logo.png)
+<h1 align="center">Dayhoff's Unzipper</h1>
 
 A lightweight first-pass genome annotation tool written in Python.
 
