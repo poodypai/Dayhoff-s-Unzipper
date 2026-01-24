@@ -1,4 +1,6 @@
-![Dayhoff's Unzipper Logo](logo.jpg)
+<p align="center">
+  <img src="logo.jpg" width="400">
+</p>
 <h1 align="center">Dayhoff's Unzipper</h1>
 
 A lightweight first-pass genome annotation tool written in Python.
