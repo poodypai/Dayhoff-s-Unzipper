@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="logo.jpg" width="400">
+  <img src="files/logo.jpg" width="400">
 </p>
 <h1 align="center">Dayhoff's Unzipper</h1>
 
