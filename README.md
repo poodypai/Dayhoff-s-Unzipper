@@ -50,6 +50,13 @@ This allows visualization in genome browsers (IGV, JBrowse, etc.) or further pro
 - Python 3.6+
 - Biopython (`pip install biopython`)
 
+## Installation
+
+```bash
+git clone https://github.com/poodypai/Dayhoff-s-Unzipper.git
+cd Dayhoff-s-Unzipper
+ ```
+
 ## Usage
 
 Run the script and provide the path to your FASTA file when prompted:
