@@ -1,184 +1,176 @@
 from Bio import SeqIO
-from collections import deque
 import os
 
+SEQ_QUEUE = []
+GENE_QUEUE = []
 
-class GenomeQueue:
-    def __init__(self):
-        self.seq_queue = deque()
-        self.gene_queue = deque()
+COUNT = 1
+FEATURE_ID = 1
 
-    def enqueue(self, seq, gene):
-        self.seq_queue.append(seq)
-        self.gene_queue.append(gene)
+BASE = 5
+MOD = 10**9 + 7
+CHAR_MAP = {'A': 1, 'C': 2, 'G': 3, 'T': 4}
 
-    def dequeue(self):
-        if len(self.seq_queue) == 0:
-            return None, None
-        return self.seq_queue.popleft(), self.gene_queue.popleft()
+START_CODON = "ATG"
+STOP_CODONS = {"TAA", "TAG", "TGA"}
 
+MOTIFS = {
+    "TATA_box": "TATAAA",
+    "CAAT_box": "CCAAT",
+    "GC_box": "GGGCGG",
+    "Pribnow_box": "TATAAT",
+    "AP1_site": "TGACTCA",
+    "CRE_site": "TGACGTCA",
+    "Octamer": "ATGCAAAT",
+    "Kozak_sequence": "GCCACCATGG",
+    "PolyA_signal": "AATAAA",
+    "Shine_Dalgarno": "AGGAGG"
+}
 
-class GenomeAnnotator:
-    MOTIFS = {
-        "TATA_box": "TATAAA",
-        "CAAT_box": "CCAAT",
-        "GC_box": "GGGCGG",
-        "Pribnow_box": "TATAAT",
-        "AP1_site": "TGACTCA",
-        "CRE_site": "TGACGTCA",
-        "Octamer": "ATGCAAAT",
-        "Kozak_sequence": "GCCACCATGG",
-        "PolyA_signal": "AATAAA",
-        "Shine_Dalgarno": "AGGAGG"
-    }
+def enqueue(seq, gene):
+    SEQ_QUEUE.append(seq)
+    GENE_QUEUE.append(gene)
 
-    def __init__(self, fasta_file):
-        self.queue = GenomeQueue()
-        self.count = 1
-        self.base = 5
-        self.mod = 10**9 + 7
-        self.mapping = {'A': 1, 'C': 2, 'G': 3, 'T': 4}
-        self.start_codon = "ATG"
-        self.stop_codons = {"TAA", "TAG", "TGA"}
-        name = os.path.splitext(fasta_file)[0]
-        self.gff = open(name + ".gff", "w")
-        self.gff.write("##gff-version 3\n")
-        self.fid = 1
+def dequeue():
+    if not SEQ_QUEUE:
+        return None, None
+    return SEQ_QUEUE.pop(0), GENE_QUEUE.pop(0)
 
-    def load_fasta(self, path):
-        for record in SeqIO.parse(path, "fasta"):
-            self.queue.enqueue(str(record.seq).upper(), record.id)
+def gc_content(seq):
+    total = seq.count("A") + seq.count("C") + seq.count("G") + seq.count("T")
+    if total == 0:
+        return 0
+    return ((seq.count("G") + seq.count("C")) / total) * 100
 
-    def gc_content(self, seq):
-        g = seq.count("G")
-        c = seq.count("C")
-        a = seq.count("A")
-        t = seq.count("T")
-        total = a + c + g + t
-        if total == 0:
-            return 0
-        return ((g + c) / total) * 100
+def rabin_karp_search(seq, pattern):
+    n, m = len(seq), len(pattern)
+    if m > n:
+        return []
 
-    def rabin_karp_search(self, seq, motif):
-        n = len(seq)
-        m = len(motif)
-        if m > n:
+    pat_hash = 0
+    win_hash = 0
+    high_pow = pow(BASE, m - 1, MOD)
+
+    for i in range(m):
+        if pattern[i] not in CHAR_MAP or seq[i] not in CHAR_MAP:
             return []
+        pat_hash = (pat_hash * BASE + CHAR_MAP[pattern[i]]) % MOD
+        win_hash = (win_hash * BASE + CHAR_MAP[seq[i]]) % MOD
 
-        mh = 0
-        wh = 0
-        h = pow(self.base, m - 1, self.mod)
+    positions = []
 
-        for i in range(m):
-            if seq[i] not in self.mapping:
-                return []
-            mh = (mh * self.base + self.mapping[motif[i]]) % self.mod
-            wh = (wh * self.base + self.mapping[seq[i]]) % self.mod
+    for i in range(n - m + 1):
+        if win_hash == pat_hash and seq[i:i + m] == pattern:
+            positions.append(i)
 
-        pos = []
+        if i < n - m:
+            left = seq[i]
+            right = seq[i + m]
 
-        for i in range(n - m + 1):
-            if mh == wh:
-                if seq[i:i + m] == motif:
-                    pos.append(i)
+            if left not in CHAR_MAP or right not in CHAR_MAP:
+                win_hash = 0
+                continue
 
-            if i < n - m:
-                left = seq[i]
-                right = seq[i + m]
-                if left not in self.mapping or right not in self.mapping:
-                    wh = 0
-                    continue
-                wh = (wh - self.mapping[left] * h) * self.base
-                wh = (wh + self.mapping[right]) % self.mod
+            win_hash = (win_hash - CHAR_MAP[left] * high_pow) % MOD
+            win_hash = (win_hash * BASE + CHAR_MAP[right]) % MOD
 
-        return pos
+    return positions
 
-    def detect_orfs(self, seq):
-        orfs = []
-        for frame in range(3):
-            i = frame
-            while i < len(seq) - 2:
-                if seq[i:i+3] == self.start_codon:
-                    s = i
-                    i += 3
-                    while i < len(seq) - 2:
-                        if seq[i:i+3] in self.stop_codons:
-                            e = i + 3
-                            orfs.append((s, e))
-                            break
-                        i += 3
+def detect_orfs(seq):
+    orfs = []
+    for frame in range(3):
+        i = frame
+        while i < len(seq) - 2:
+            if seq[i:i+3] == START_CODON:
+                start = i
                 i += 3
-        return orfs
+                while i < len(seq) - 2:
+                    if seq[i:i+3] in STOP_CODONS:
+                        end = i + 3
+                        orfs.append((start, end))
+                        break
+                    i += 3
+            i += 3
+    return orfs
 
-    def write_gff(self, gene, ftype, start, end, strand, attr):
-        self.gff.write(
-            gene + "\tDayhoff's Unzipper\t" + ftype + "\t" +
-            str(start) + "\t" + str(end) + "\t.\t" +
-            strand + "\t.\t" + attr + "\n"
-        )
+def write_gff(gff, gene, feature, start, end, strand, attributes):
+    gff.write(
+        f"{gene}\tDayhoffs_Unzipper\t{feature}\t"
+        f"{start}\t{end}\t.\t{strand}\t.\t{attributes}\n"
+    )
 
-    def annotate(self, gene, seq):
-        print("=" * 50)
-        print("Sequence Annotation", self.count)
-        print("Gene ID     :", gene)
-        print("Length      :", len(seq))
-        print("GC Content  : {:.2f}%".format(self.gc_content(seq)))
-        self.gff.write(f"##sequence-region {gene} 1 {len(seq)}\n")
-        orfs = self.detect_orfs(seq)
-        if len(orfs) == 0:
-            print("No ORFs found")
-        else:
-            print("Detected ORFs:")
-            for s, e in orfs:
-                print(" Start:", s, "| End:", e, "| Length:", e - s)
-                self.write_gff(
+def annotations(gff, gene, seq):
+    global COUNT, FEATURE_ID
+
+    print("=" * 50)
+    print(f"Sequence Annotation {COUNT}")
+    print("Gene ID    :", gene)
+    print("Length     :", len(seq))
+    print("GC Content : {:.2f}%".format(gc_content(seq)))
+
+    gff.write(f"##sequence-region {gene} 1 {len(seq)}\n")
+
+    orfs = detect_orfs(seq)
+    if not orfs:
+        print("No ORFs found")
+    else:
+        print("Detected ORFs:")
+        for start, end in orfs:
+            print(f" Start: {start} | End: {end} | Length: {end - start}")
+            write_gff(
+                gff,
+                gene,
+                "CDS",
+                start + 1,
+                end,
+                "+",
+                f"ID=cds{FEATURE_ID}"
+            )
+            FEATURE_ID += 1
+
+    print("Detected Motifs:")
+    found = False
+    for name, motif in MOTIFS.items():
+        hits = rabin_karp_search(seq, motif)
+        if hits:
+            found = True
+            print(f" {name} ({motif}) -> {hits}")
+            for pos in hits:
+                write_gff(
+                    gff,
                     gene,
-                    "CDS",
-                    s + 1,
-                    e,
+                    "motif",
+                    pos + 1,
+                    pos + len(motif),
                     "+",
-                    "ID=cds" + str(self.fid)
+                    f"ID=motif{FEATURE_ID};Name={name};Sequence={motif}"
                 )
-                self.fid += 1
+                FEATURE_ID += 1
 
-        found = False
-        print("Detected Motifs:")
-        for name in self.MOTIFS:
-            motif = self.MOTIFS[name]
-            positions = self.rabin_karp_search(seq, motif)
-            if len(positions) > 0:
-                found = True
-                print(" ", name, "(", motif, ") ->", positions)
-                for p in positions:
-                    self.write_gff(
-                        gene,
-                        "motif",
-                        p + 1,
-                        p + len(motif),
-                        "+",
-                        "ID=motif" + str(self.fid) +
-                        ";Name=" + name +
-                        ";Sequence=" + motif
-                    )
-                    self.fid += 1
+    if not found:
+        print(" No motifs found")
 
-        if not found:
-            print(" No motifs found")
+    print("=" * 50)
+    COUNT += 1
 
-        print("=" * 50)
-        self.count += 1
+def load_fasta(path):
+    for record in SeqIO.parse(path, "fasta"):
+        enqueue(str(record.seq).upper(), record.id)
 
-    def run(self):
-        while True:
-            seq, gene = self.queue.dequeue()
-            if seq is None:
-                break
-            self.annotate(gene, seq)
-        self.gff.close()
+def run(path):
+    output = os.path.splitext(path)[0] + ".gff"
+    gff = open(output, "w")
+    gff.write("##gff-version 3\n")
 
+    while True:
+        seq, gene = dequeue()
+        if seq is None:
+            break
+        annotations(gff, gene, seq)
+
+    gff.close()
 
 if __name__ == "__main__":
-    path = input("Enter FASTA file path: ")
-    annotator = GenomeAnnotator(path)
-    annotator.load_fasta(path)
-    annotator.run()
+    fasta_path = input("Enter FASTA file path: ")
+    load_fasta(fasta_path)
+    run(fasta_path)
