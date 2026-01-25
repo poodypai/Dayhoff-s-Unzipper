@@ -7,7 +7,7 @@ A lightweight first-pass genome annotation tool written in Python.
 
 It processes nucleotide sequences from FASTA files and performs basic feature detection.
 
-<b>BICP 201 Mini Project: Team Dayhoffing our way through genomes <br> Team Members: <be> [Bindika Bhattarai]() <br> [Nishan Shoni](https://github.com/volcan3k) <br> [Biraj Raj Thapa](https://github.com/poodypai)</b>
+<b>BICP 201 Mini Project: Team Dayhoffing our way through genomes <br> Team Members: <br> [Bindika Bhattarai]() <br> [Nishan Shoni](https://github.com/volcan3k) <br> [Biraj Raj Thapa](https://github.com/poodypai)</b>
 
 ## Features
 
