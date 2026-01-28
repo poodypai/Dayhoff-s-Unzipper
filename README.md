@@ -14,6 +14,7 @@ It processes nucleotide sequences from FASTA files and performs basic feature de
   <li>Queue</li><br>
   Algorithm Used: <br>
   <li>Hashing</li>
+  </b>
 - Reads multi-FASTA files using Biopython
 - Detects open reading frames (ORFs) in all three forward frames (ATG → stop codon)
 - Searches for common promoter, regulatory, and translation initiation motifs using an efficient Rabin-Karp implementation
