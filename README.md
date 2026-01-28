@@ -28,12 +28,8 @@ It processes nucleotide sequences from FASTA files and performs basic feature de
 - Outputs annotations in GFF3 format
 - Includes `##sequence-region` pragma for each input sequence
 - Processes files silently (no console output)
-
-   <b>Data Structure Used: <br>
-  <li>Queue</li><br>
-  Algorithm Used: <br>
-  <li>Hashing</li>
-  </b><br>
+- Data structure Used: Queue
+- Algorithm Used: Hashing
 
 ## First-Pass Annotation
 
