@@ -10,11 +10,7 @@ It processes nucleotide sequences from FASTA files and performs basic feature de
 <b>BICP 201 Mini Project: Team Dayhoffing our way through genomes <br> Team Members: <br> [Bindika Bhattarai]() <br> [Nishan Shoni](https://github.com/volcan3k) <br> [Biraj Raj Thapa](https://github.com/poodypai)</b>
 
 ## Features
- <b>Data Structure Used: <br>
-  <li>Queue</li><br>
-  Algorithm Used: <br>
-  <li>Hashing</li>
-  </b>
+
 - Reads multi-FASTA files using Biopython
 - Detects open reading frames (ORFs) in all three forward frames (ATG → stop codon)
 - Searches for common promoter, regulatory, and translation initiation motifs using an efficient Rabin-Karp implementation
@@ -32,6 +28,12 @@ It processes nucleotide sequences from FASTA files and performs basic feature de
 - Outputs annotations in GFF3 format
 - Includes `##sequence-region` pragma for each input sequence
 - Processes files silently (no console output)
+
+   <b>Data Structure Used: <br>
+  <li>Queue</li><br>
+  Algorithm Used: <br>
+  <li>Hashing</li>
+  </b><br>
 
 ## First-Pass Annotation
 
