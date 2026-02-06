@@ -69,3 +69,8 @@ python main.py
 
 ## Screenshots
 <img src="files/Screenshot-1.png"></img>
+<img src="files/Screenshot-2.png"></img>
+<h3>Motif Detections</h3>
+<img src="files/Screenshot-3.png"></img>
+<h3>GFF File Creation</h3>
+
