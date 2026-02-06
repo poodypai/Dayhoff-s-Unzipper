@@ -68,4 +68,4 @@ python main.py
 ```
 
 ## Screenshots
-<img src="files/Screenshots-1.jpg"></img>
+<img src="files/Screenshot-1.png"></img>
