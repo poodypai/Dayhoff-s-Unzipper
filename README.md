@@ -68,6 +68,7 @@ python main.py
 ```
 
 ## Screenshots
+<h3>Loading the file</h3>
 <img src="files/Screenshot-1.png"></img>
 <h3>Motif Detections</h3>
 <img src="files/Screenshot-2.png"></img>
