@@ -172,7 +172,7 @@ def run(path):
 
 if __name__ == "__main__":
     
-    print("\n Dayhoff's Unzipper \n")
+    print("\n Dayhoff's Unzipper")
     print("=" * 30)
     fasta_path = input("Enter FASTA file path: ")
     load_fasta(fasta_path)
