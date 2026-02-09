@@ -74,5 +74,7 @@ python3 main.py
 <img src="files/Screenshot-2.png"></img>
 <h3>GFF File Creation</h3>
 <img src="files/Screenshot-3.png"></img>
+<h3>Annotation Visualization with Jbrowse</h3>
+<img src="files/Jbrowse.png"></img>
 
 
