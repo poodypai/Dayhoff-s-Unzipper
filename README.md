@@ -64,7 +64,7 @@ cd Dayhoff-s-Unzipper
 Run the script and provide the path to your FASTA file when prompted:
 
 ```bash
-python main.py
+python3 main.py
 ```
 
 ## Screenshots
