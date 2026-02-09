@@ -171,7 +171,9 @@ def run(path):
     gff.close()
 
 if __name__ == "__main__":
-    print("Dayhoff's Unzipper \n")
+    
+    print("\n Dayhoff's Unzipper \n")
+    print("=" * 10)
     fasta_path = input("Enter FASTA file path: ")
     load_fasta(fasta_path)
     run(fasta_path)
